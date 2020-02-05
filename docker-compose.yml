@@ -54,7 +54,7 @@ services:
       - AWS_PROFILE=default
     volumes:
       - ${AWS_CONF_DIR}:/root/.aws
-      - ${PRD}/pmapper/account-data:/PMapper/account-data
+      - ${PWD}/pmapper/account-data:/PMapper/account-data
     command: ["/bin/bash", "-l", "-c", "tail", "-f", "/dev/null"]
     tty: true
     working_dir: /PMapper/
