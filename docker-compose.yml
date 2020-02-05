@@ -1,1 +1,95 @@
+version: "3"
+services:
+  cloudmapper:
+    image: gcr.io/develop-x-234400/cloudmapper@sha256:67d7e4389145c654ff79bea66aee0d3be3a4bd3de3841c9175650a675ef5c5bd
+    environment:
+      - AWS_DEFAULT_REGION=eu-east-1
+      - AWS_PROFILE=default
+    volumes:
+      - ${AWS_CONF_DIR}:/root/.aws
+      - ${PWD}/cloudmapper/account-data:/opt/cloudmapper/account-data
+      - config.json:/opt/cloudmapper/config.json
+    ports:
+      - "8000:8000"
+    command: ["/bin/bash", "-l", "-c", "tail", "-f", "/dev/null"]
+    tty: true
+    working_dir: /opt/cloudmapper/
+    #command: ["/bin/bash", "pipenv", "shell"]
+    
+  cloudtracker:
+    image: gcr.io/develop-x-234400/cloudtracker:bbe30e8a9cb4
+    volumes:
+      - ${AWS_CONF_DIR}:/root/.aws
+      - ${PWD}/cloudtracker/account-data:/cloudtracker/account-data
+    command: ["/bin/bash", "-l", "-c", "tail", "-f", "/dev/null"]
+    tty: true
+    working_dir: /cloudtracker/
+#  elasticsearch:
+#    image: docker.elastic.co/elasticsearch/elasticsearch:6.1.1
+#    network_mode: host
+#    container_name: es01
+#    environment:
+#      - node.name=es01
+#      - cluster.name=docker-cluster
+#      - bootstrap.memory_lock=true
+#      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+#    ulimits:
+#      memlock:
+#        soft: -1
+#        hard: -1
+#    volumes:
+#      - esdata01:/usr/share/elasticsearch/data
+#    ports:
+#      - 9200:9200
+#volumes:
+#  esdata01:
+#    driver: local
 
+  pmapper:
+    image: gcr.io/develop-x-234400/pmapper:dcc83f6ac38e
+    build:
+      context: .
+    environment:
+      - AWS_DEFAULT_REGION=us-east-1
+      - AWS_PROFILE=default
+    volumes:
+      - ${AWS_CONF_DIR}:/root/.aws
+      - ${PRD}/pmapper/account-data:/PMapper/account-data
+    command: ["/bin/bash", "-l", "-c", "tail", "-f", "/dev/null"]
+    tty: true
+    working_dir: /PMapper/
+
+
+  scoutsuite:
+    image: gcr.io/develop-x-234400/scoutsuite@sha256:a1565e297e677fb4245b0d902c2e531f960dc2b921383452d6ce425c39ae36be
+    environment:
+      - AWS_DEFAULT_REGION=us-east-1
+      - AWS_PROFILE=default
+    volumes:
+      - ${AWS_CONF_DIR}:/root/.aws
+      - ${PWD}/scoutsuite/reports:/reports
+    command: ["/bin/bash", "-l", "-c", "tail", "-f", "/dev/null"]
+    tty: true
+    working_dir: /
+
+  pacu:
+    image: gcr.io/develop-x-234400/pacu@sha256:e20632c3af0e08698a154fd6c6c23a76b9de475a3bfde4bf0c75d2719588d2b8
+    environment:
+      - AWS_DEFAULT_REGION=us-east-1
+      - AWS_PROFILE=default
+    volumes:
+      - ${AWS_CONF_DIR}:/root/.aws
+      - ${PWD}/pacu:/pacu/data
+    command: ["/bin/bash", "-l", "-c", "tail", "-f", "/dev/null"]
+    tty: true
+    working_dir: /Pacu/
+
+  asset-inventory:
+    image: gcr.io/develop-x-234400/aws-inventory:bc86c40bd9a1
+    environment:
+      - AWS_DEFAULT_REGION=us-east-1
+      - AWS_PROFILE=default
+    volumes:
+      - ${AWS_CONF_DIR}:/root/.aws
+      - ${PWD}/asset-inventory/account-data:/asset-inventory/account-data
+    command: ["/bin/bash", "-l", "-c", "AWS_PROFILE=$AWS_PROFILE", "python", "aws_inventory.py"]
